@@ -1,10 +1,6 @@
 # The Spring Boot & Spring Security Developer Roadmap
 
-This roadmap outlines the exact steps to build a production-ready Java backend application, structured directly from the **EazyBytes "Master Spring, Spring Boot, REST, JPA, Spring Security"** curriculum. 
 
-It is divided into two distinct sections: **One-Time Initialization** (setting up the foundation) and the **Per-Feature Development Cycle** (the repeatable workflow for each new feature).
-
----
 
 # 🏗️ Part 1: One-Time Initialization & Project Foundation
 *Execute these steps once at the start of your project to establish a robust, secure, and clean architecture.*
