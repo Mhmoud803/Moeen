@@ -7,7 +7,7 @@ import {
   Target, ExternalLink, UserPlus, Link2, Layers, Users, Edit3, ChevronUp,
   Wifi, WifiOff, AlertCircle, HelpCircle, Radio, RefreshCw, MapPin,
   ArrowRight, Lightbulb, TrendingDown, SlidersHorizontal,
-  MessageCircle, Mail, BookOpen, Users2, Flame, Trophy, Hash, Code, Send,
+  MessageCircle, Mail, BookOpen, Users2, Flame, Trophy, Hash, Code, Send, List,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -16,7 +16,7 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Status = "Applied" | "HR Screen" | "Tech Interview" | "Offer" | "Rejected";
-type View = "dashboard" | "pipeline" | "companies" | "profile" | "intel" | "radar" | "outreach" | "vault";
+type View = "dashboard" | "pipeline" | "applications" | "profile" | "intel" | "radar" | "outreach" | "vault";
 type OutreachStatus = "To Contact" | "Connection Sent" | "In Discussion" | "Coffee Chat" | "Ghosted" | "Replied";
 type Tier = "tier1" | "tier2" | "archived";
 type HiringStatus = "Actively Hiring" | "Selective" | "Hiring Freeze" | "Unknown";
@@ -315,6 +315,7 @@ function Sidebar({ view, setView }: { view: View; setView: (v: View) => void }) 
   const navItems = [
     { id: "dashboard" as View, icon: LayoutDashboard, label: "Dash" },
     { id: "pipeline" as View, icon: Columns3, label: "Board" },
+    { id: "applications" as View, icon: List, label: "Jobs" },
     { id: "intel" as View, icon: Target, label: "Intel" },
     { id: "radar" as View, icon: Radio, label: "Radar" },
     { id: "outreach" as View, icon: Users2, label: "CRM" },
@@ -351,7 +352,7 @@ function Header({ view, onAdd }: { view: View; onAdd: () => void }) {
   const meta: Record<View, { title: string; crumb: string }> = {
     dashboard: { title: "Dashboard", crumb: "Analytics Overview" },
     pipeline:  { title: "Pipeline",  crumb: "Kanban Board" },
-    companies: { title: "Companies", crumb: "All Companies" },
+    applications: { title: "Applications", crumb: "All Applications" },
     intel:     { title: "Intel",     crumb: "Company Target Board" },
     radar:     { title: "Radar",     crumb: "AI Opportunity Feed" },
     outreach:  { title: "Outreach",  crumb: "Cold Outreach CRM" },
@@ -371,7 +372,7 @@ function Header({ view, onAdd }: { view: View; onAdd: () => void }) {
           <Bell size={15} />
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
         </button>
-        {(view === "pipeline" || view === "dashboard" || view === "companies") && (
+        {(view === "pipeline" || view === "dashboard" || view === "applications") && (
           <button onClick={onAdd} className="h-8 pl-2.5 pr-3.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 hover:bg-primary/90 transition-colors">
             <Plus size={14} strokeWidth={2.5} />Add Application
           </button>
@@ -471,9 +472,9 @@ function DashboardView({ apps }: { apps: Application[] }) {
   );
 }
 
-// ─── Companies ────────────────────────────────────────────────────────────────
+// ─── Applications ─────────────────────────────────────────────────────────────
 
-function CompaniesView({ apps }: { apps: Application[] }) {
+function ApplicationsView({ apps }: { apps: Application[] }) {
   const sorted = [...apps].sort((a,b) => new Date(b.dateApplied).getTime()-new Date(a.dateApplied).getTime());
   return (
     <div className="h-full overflow-y-auto p-5"><div className="max-w-4xl mx-auto bg-card border border-border rounded-xl overflow-hidden">
@@ -1563,7 +1564,7 @@ export default function App() {
         <main className="flex-1 overflow-hidden">
           {view === "pipeline"  && <PipelineView apps={apps} setApps={setApps} />}
           {view === "dashboard" && <DashboardView apps={apps} />}
-          {view === "companies" && <CompaniesView apps={apps} />}
+          {view === "applications" && <ApplicationsView apps={apps} />}
           {view === "intel"     && <IntelView apps={apps} />}
           {view === "radar"     && <RadarView onAddApp={handleAdd} />}
           {view === "outreach"  && <OutreachView />}
