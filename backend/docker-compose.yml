@@ -1,9 +1,9 @@
 services:
   db:
-    image: postgres:latest
+    image: postgres:16
     container_name: moeen_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
@@ -16,7 +16,7 @@ services:
 
   frontend:
     image: node:20-alpine
-    container_name: jobportal-frontend
+    container_name: moen-frontend
     working_dir: /app
     volumes:
       - ../frontend:/app
