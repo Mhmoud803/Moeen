@@ -8,6 +8,7 @@ class MoeenApplicationTests {
 
 	@Test
 	void contextLoads() {
+		
 	}
 
 }

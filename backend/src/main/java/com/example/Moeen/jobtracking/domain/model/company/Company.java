@@ -52,5 +52,5 @@ public class Company extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private Integer rating;
+    private Short rating;
 }
