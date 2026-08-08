@@ -8,15 +8,17 @@ import {
   Wifi, WifiOff, AlertCircle, HelpCircle, Radio, RefreshCw, MapPin,
   ArrowRight, Lightbulb, TrendingDown, SlidersHorizontal,
   MessageCircle, Mail, BookOpen, Users2, Flame, Trophy, Hash, Code, Send, List,
+  Timer,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
+import { StudyPage } from "./StudyPage";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Status = "Applied" | "HR Screen" | "Tech Interview" | "Offer" | "Rejected";
-type View = "dashboard" | "pipeline" | "applications" | "profile" | "intel" | "radar" | "outreach" | "vault";
+type View = "dashboard" | "pipeline" | "applications" | "profile" | "intel" | "radar" | "outreach" | "vault" | "study";
 type OutreachStatus = "To Contact" | "Connection Sent" | "In Discussion" | "Coffee Chat" | "Ghosted" | "Replied";
 type Tier = "tier1" | "tier2" | "archived";
 type HiringStatus = "Actively Hiring" | "Selective" | "Hiring Freeze" | "Unknown";
@@ -65,11 +67,11 @@ const COLUMNS: { key: Status }[] = [
   { key: "Applied" }, { key: "HR Screen" }, { key: "Tech Interview" }, { key: "Offer" }, { key: "Rejected" },
 ];
 const STATUS_BADGE: Record<Status, string> = {
-  Applied: "bg-blue-50 text-blue-700 border border-blue-200",
-  "HR Screen": "bg-amber-50 text-amber-700 border border-amber-200",
-  "Tech Interview": "bg-violet-50 text-violet-700 border border-violet-200",
-  Offer: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  Rejected: "bg-red-50 text-red-600 border border-red-200",
+  Applied: "bg-blue-400/10 text-blue-300 border border-blue-400/20",
+  "HR Screen": "bg-amber-400/10 text-amber-300 border border-amber-400/20",
+  "Tech Interview": "bg-violet-400/10 text-violet-300 border border-violet-400/20",
+  Offer: "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20",
+  Rejected: "bg-red-400/10 text-red-400 border border-red-400/20",
 };
 const COLUMN_DOT: Record<Status, string> = {
   Applied: "bg-blue-500", "HR Screen": "bg-amber-500", "Tech Interview": "bg-violet-500",
@@ -123,21 +125,21 @@ const TECH_CONFIG: Record<string, { label: string; bg: string; fg: string }> = {
   "MySQL":        { label: "My", bg: "#4479A1", fg: "#FFFFFF" },
 };
 const HIRING_STATUS_BADGE: Record<HiringStatus, { style: string; icon: React.ElementType }> = {
-  "Actively Hiring": { style: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: Wifi },
-  "Selective":       { style: "bg-amber-50 text-amber-700 border border-amber-200",       icon: AlertCircle },
-  "Hiring Freeze":   { style: "bg-red-50 text-red-600 border border-red-200",             icon: WifiOff },
-  "Unknown":         { style: "bg-slate-100 text-slate-500 border border-slate-200",      icon: HelpCircle },
+  "Actively Hiring": { style: "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20", icon: Wifi },
+  "Selective":       { style: "bg-amber-400/10 text-amber-300 border border-amber-400/20",       icon: AlertCircle },
+  "Hiring Freeze":   { style: "bg-red-400/10 text-red-400 border border-red-400/20",             icon: WifiOff },
+  "Unknown":         { style: "bg-white/[0.05] text-slate-400 border border-white/10",      icon: HelpCircle },
 };
 
 // ─── Radar Constants ──────────────────────────────────────────────────────────
 
 const SOURCE_STYLE: Record<string, string> = {
-  "LinkedIn":     "bg-blue-50 text-blue-700",
-  "Company Site": "bg-slate-100 text-slate-600",
-  "HN Hiring":    "bg-orange-50 text-orange-700",
-  "Greenhouse":   "bg-emerald-50 text-emerald-700",
-  "AngelList":    "bg-pink-50 text-pink-700",
-  "Lever":        "bg-purple-50 text-purple-700",
+  "LinkedIn":     "bg-blue-400/10 text-blue-300",
+  "Company Site": "bg-white/[0.05] text-slate-300",
+  "HN Hiring":    "bg-orange-400/10 text-orange-300",
+  "Greenhouse":   "bg-emerald-400/10 text-emerald-300",
+  "AngelList":    "bg-pink-400/10 text-pink-300",
+  "Lever":        "bg-purple-400/10 text-purple-300",
 };
 
 const RADAR_OPPORTUNITIES: Opportunity[] = [
@@ -154,9 +156,9 @@ const RADAR_OPPORTUNITIES: Opportunity[] = [
 
 const AI_INSIGHTS_DATA = [
   { icon: Zap,         text: "Adding Go to your skills would unlock 67 more backend engineering roles in your match feed.", impact: "+67 roles",  impactColor: "text-primary bg-accent" },
-  { icon: TrendingUp,  text: "Your Java + Spring Boot combo places you in the top 8% of backend candidates on LinkedIn.", impact: "Top 8%",    impactColor: "text-emerald-700 bg-emerald-50" },
-  { icon: AlertCircle, text: "3 of your Tier 1 targets posted new roles in the last 24h — act before they close.", impact: "3 new", impactColor: "text-amber-700 bg-amber-50" },
-  { icon: Target,      text: "Confluent's open role is a 91% match. Applying in the first 24h improves callback rates 3×.", impact: "91% match", impactColor: "text-blue-700 bg-blue-50" },
+  { icon: TrendingUp,  text: "Your Java + Spring Boot combo places you in the top 8% of backend candidates on LinkedIn.", impact: "Top 8%",    impactColor: "text-emerald-300 bg-emerald-400/10" },
+  { icon: AlertCircle, text: "3 of your Tier 1 targets posted new roles in the last 24h — act before they close.", impact: "3 new", impactColor: "text-amber-300 bg-amber-400/10" },
+  { icon: Target,      text: "Confluent's open role is a 91% match. Applying in the first 24h improves callback rates 3×.", impact: "91% match", impactColor: "text-blue-300 bg-blue-400/10" },
 ];
 
 const FEED_SOURCES = [
@@ -179,12 +181,12 @@ const USER_SKILLS_ALL = ["Java", "Spring Boot", "PostgreSQL", "React", "TypeScri
 // ─── Outreach Constants ───────────────────────────────────────────────────────
 
 const OUTREACH_STATUS_STYLE: Record<OutreachStatus, { badge: string; dot: string }> = {
-  "To Contact":      { badge: "bg-slate-100 text-slate-600 border border-slate-200",      dot: "bg-slate-400" },
-  "Connection Sent": { badge: "bg-blue-50 text-blue-700 border border-blue-200",          dot: "bg-blue-500" },
-  "In Discussion":   { badge: "bg-violet-50 text-violet-700 border border-violet-200",    dot: "bg-violet-500" },
-  "Coffee Chat":     { badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", dot: "bg-emerald-500" },
-  "Ghosted":         { badge: "bg-red-50 text-red-600 border border-red-200",             dot: "bg-red-400" },
-  "Replied":         { badge: "bg-teal-50 text-teal-700 border border-teal-200",          dot: "bg-teal-500" },
+  "To Contact":      { badge: "bg-white/[0.05] text-slate-300 border border-white/10",      dot: "bg-slate-400" },
+  "Connection Sent": { badge: "bg-blue-400/10 text-blue-300 border border-blue-400/20",          dot: "bg-blue-500" },
+  "In Discussion":   { badge: "bg-violet-400/10 text-violet-300 border border-violet-400/20",    dot: "bg-violet-500" },
+  "Coffee Chat":     { badge: "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20", dot: "bg-emerald-500" },
+  "Ghosted":         { badge: "bg-red-400/10 text-red-400 border border-red-400/20",             dot: "bg-red-400" },
+  "Replied":         { badge: "bg-teal-400/10 text-teal-300 border border-teal-400/20",          dot: "bg-teal-500" },
 };
 
 const INITIAL_CONTACTS: Contact[] = [
@@ -293,20 +295,20 @@ function daysSince(dateStr: string): string {
 }
 function getSkillColor(skill: string): string {
   const s = skill.toLowerCase();
-  if (["java","spring","python","node","postgresql","mysql","redis","kafka","rest","api","sql","backend","go","rust","ruby"].some(k=>s.includes(k))) return "bg-blue-50 text-blue-700 border border-blue-200";
-  if (["react","vue","angular","typescript","javascript","css","tailwind","html","next","frontend","ui","electron"].some(k=>s.includes(k))) return "bg-amber-50 text-amber-700 border border-amber-200";
-  if (["docker","kubernetes","aws","gcp","azure","terraform","devops","linux","nginx","k8s","ci/cd","cloud"].some(k=>s.includes(k))) return "bg-orange-50 text-orange-700 border border-orange-200";
-  if (["ml","ai","pytorch","tensorflow","pandas","numpy","scikit","llm","nlp","machine"].some(k=>s.includes(k))) return "bg-pink-50 text-pink-700 border border-pink-200";
-  return "bg-violet-50 text-violet-700 border border-violet-200";
+  if (["java","spring","python","node","postgresql","mysql","redis","kafka","rest","api","sql","backend","go","rust","ruby"].some(k=>s.includes(k))) return "bg-blue-400/10 text-blue-300 border border-blue-400/20";
+  if (["react","vue","angular","typescript","javascript","css","tailwind","html","next","frontend","ui","electron"].some(k=>s.includes(k))) return "bg-amber-400/10 text-amber-300 border border-amber-400/20";
+  if (["docker","kubernetes","aws","gcp","azure","terraform","devops","linux","nginx","k8s","ci/cd","cloud"].some(k=>s.includes(k))) return "bg-orange-400/10 text-orange-300 border border-orange-400/20";
+  if (["ml","ai","pytorch","tensorflow","pandas","numpy","scikit","llm","nlp","machine"].some(k=>s.includes(k))) return "bg-pink-400/10 text-pink-300 border border-pink-400/20";
+  return "bg-violet-400/10 text-violet-300 border border-violet-400/20";
 }
 function getTagColor(tag: string): string {
   const s = tag.toLowerCase();
-  if (["backend","java","python","spring","node","rest"].some(k=>s.includes(k))) return "bg-blue-50 text-blue-700";
-  if (["frontend","react","vue","ui","next"].some(k=>s.includes(k))) return "bg-amber-50 text-amber-700";
-  if (["full","stack"].some(k=>s.includes(k))) return "bg-violet-50 text-violet-700";
-  if (["ml","ai","machine"].some(k=>s.includes(k))) return "bg-pink-50 text-pink-700";
-  if (["manage","lead","senior","director"].some(k=>s.includes(k))) return "bg-teal-50 text-teal-700";
-  return "bg-slate-100 text-slate-600";
+  if (["backend","java","python","spring","node","rest"].some(k=>s.includes(k))) return "bg-blue-400/10 text-blue-300";
+  if (["frontend","react","vue","ui","next"].some(k=>s.includes(k))) return "bg-amber-400/10 text-amber-300";
+  if (["full","stack"].some(k=>s.includes(k))) return "bg-violet-400/10 text-violet-300";
+  if (["ml","ai","machine"].some(k=>s.includes(k))) return "bg-pink-400/10 text-pink-300";
+  if (["manage","lead","senior","director"].some(k=>s.includes(k))) return "bg-teal-400/10 text-teal-300";
+  return "bg-white/[0.05] text-slate-300";
 }
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
@@ -320,17 +322,18 @@ function Sidebar({ view, setView }: { view: View; setView: (v: View) => void }) 
     { id: "radar" as View, icon: Radio, label: "Radar" },
     { id: "outreach" as View, icon: Users2, label: "CRM" },
     { id: "vault" as View, icon: BookOpen, label: "Vault" },
+    { id: "study" as View, icon: Timer, label: "Study" },
     { id: "profile" as View, icon: User, label: "Me" },
   ];
   return (
-    <aside className="w-[68px] h-full bg-card border-r border-border flex flex-col items-center py-4 shrink-0">
-      <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center mb-5 shrink-0">
+    <aside className="w-[68px] h-full bg-card/90 backdrop-blur-xl border-r border-border flex flex-col items-center py-4 shrink-0 shadow-[8px_0_30px_rgba(0,0,0,0.12)]">
+      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center mb-5 shrink-0 shadow-[0_8px_24px_rgba(124,92,255,0.28)] ring-1 ring-white/20">
         <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-white font-bold text-sm">M</span>
       </div>
       <nav className="flex flex-col items-center gap-1 flex-1 w-full px-2">
         {navItems.map(({ id, icon: Icon, label }) => (
           <button key={id} onClick={() => setView(id)} title={id.charAt(0).toUpperCase() + id.slice(1)}
-            className={`w-full h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all ${view === id ? "bg-accent text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+            className={`w-full h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all ${view === id ? "bg-gradient-to-br from-violet-400/15 to-cyan-400/5 text-violet-300 ring-1 ring-violet-400/15" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
             <Icon size={16} strokeWidth={view === id ? 2.5 : 1.75} />
             <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-[8.5px] font-medium leading-none">{label}</span>
           </button>
@@ -357,10 +360,11 @@ function Header({ view, onAdd }: { view: View; onAdd: () => void }) {
     radar:     { title: "Radar",     crumb: "AI Opportunity Feed" },
     outreach:  { title: "Outreach",  crumb: "Cold Outreach CRM" },
     vault:     { title: "Vault",     crumb: "Interview Brain Dump" },
+    study:     { title: "Study",     crumb: "Focus & Time Analytics" },
     profile:   { title: "Profile",   crumb: "Asset Hub" },
   };
   return (
-    <header className="h-[52px] border-b border-border bg-card flex items-center justify-between px-5 shrink-0">
+    <header className="h-[52px] border-b border-border bg-card/80 backdrop-blur-xl flex items-center justify-between px-5 shrink-0 shadow-[0_8px_30px_rgba(0,0,0,0.08)] z-10">
       <div className="flex items-center gap-1.5">
         <span className="text-sm font-semibold text-foreground">{meta[view].title}</span>
         <ChevronRight size={13} className="text-border" />
@@ -373,7 +377,7 @@ function Header({ view, onAdd }: { view: View; onAdd: () => void }) {
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
         </button>
         {(view === "pipeline" || view === "dashboard" || view === "applications") && (
-          <button onClick={onAdd} className="h-8 pl-2.5 pr-3.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 hover:bg-primary/90 transition-colors">
+          <button onClick={onAdd} className="h-8 pl-2.5 pr-3.5 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-sm font-medium flex items-center gap-1.5 hover:brightness-110 shadow-[0_6px_18px_rgba(124,92,255,0.22)] transition-all">
             <Plus size={14} strokeWidth={2.5} />Add Application
           </button>
         )}
@@ -447,15 +451,15 @@ function DashboardView({ apps }: { apps: Application[] }) {
   return (
     <div className="h-full overflow-y-auto p-5"><div className="max-w-5xl mx-auto space-y-4">
       <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Total Applications" value={total} icon={Briefcase} iconClass="bg-blue-50 text-blue-600" sub="All time" />
-        <StatCard label="Active Processes" value={active} icon={Clock} iconClass="bg-amber-50 text-amber-600" sub="In progress" />
-        <StatCard label="Offers Received" value={offers} icon={CheckCircle2} iconClass="bg-emerald-50 text-emerald-600" sub="Congratulations!" />
-        <StatCard label="Rejection Rate" value={`${rejRate}%`} icon={XCircle} iconClass="bg-red-50 text-red-500" sub={`${rejected} declined`} />
+        <StatCard label="Total Applications" value={total} icon={Briefcase} iconClass="bg-blue-400/10 text-blue-400" sub="All time" />
+        <StatCard label="Active Processes" value={active} icon={Clock} iconClass="bg-amber-400/10 text-amber-400" sub="In progress" />
+        <StatCard label="Offers Received" value={offers} icon={CheckCircle2} iconClass="bg-emerald-400/10 text-emerald-400" sub="Congratulations!" />
+        <StatCard label="Rejection Rate" value={`${rejRate}%`} icon={XCircle} iconClass="bg-red-400/10 text-red-400" sub={`${rejected} declined`} />
       </div>
       <div className="grid grid-cols-5 gap-4">
         <div className="col-span-3 bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center justify-between mb-5"><div><h3 className="font-semibold text-foreground">Applications per Week</h3><p className="text-xs text-muted-foreground mt-0.5">Last 8 weeks</p></div><div className="flex items-center gap-1 text-emerald-600 text-xs font-semibold"><TrendingUp size={13} /><span>+24% vs last month</span></div></div>
-          <ResponsiveContainer width="100%" height={176}><BarChart data={WEEKLY_DATA} barSize={22} margin={{ top:0, right:4, left:-12, bottom:0 }}><CartesianGrid vertical={false} stroke="rgba(0,0,0,0.04)" /><XAxis dataKey="week" tick={{ fontSize:10, fill:"#94A3B8", fontFamily:"JetBrains Mono" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize:10, fill:"#94A3B8", fontFamily:"JetBrains Mono" }} axisLine={false} tickLine={false} /><Tooltip content={<ChartTooltip />} cursor={{ fill:"rgba(79,70,229,0.05)", radius:4 }} /><Bar dataKey="count" fill="#4F46E5" radius={[4,4,0,0]} /></BarChart></ResponsiveContainer>
+          <div className="flex items-center justify-between mb-5"><div><h3 className="font-semibold text-foreground">Applications per Week</h3><p className="text-xs text-muted-foreground mt-0.5">Last 8 weeks</p></div><div className="flex items-center gap-1 text-emerald-400 text-xs font-semibold"><TrendingUp size={13} /><span>+24% vs last month</span></div></div>
+          <ResponsiveContainer width="100%" height={176}><BarChart data={WEEKLY_DATA} barSize={22} margin={{ top:0, right:4, left:-12, bottom:0 }}><CartesianGrid vertical={false} stroke="rgba(148,163,184,0.1)" /><XAxis dataKey="week" tick={{ fontSize:10, fill:"#718096", fontFamily:"JetBrains Mono" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize:10, fill:"#718096", fontFamily:"JetBrains Mono" }} axisLine={false} tickLine={false} /><Tooltip content={<ChartTooltip />} cursor={{ fill:"rgba(139,124,246,0.08)", radius:4 }} /><Bar dataKey="count" fill="#8B7CF6" radius={[4,4,0,0]} /></BarChart></ResponsiveContainer>
         </div>
         <div className="col-span-2 bg-card border border-border rounded-xl p-5 flex flex-col">
           <div className="flex items-center justify-between mb-4"><h3 className="font-semibold text-foreground">Upcoming</h3><Calendar size={14} className="text-muted-foreground" /></div>
@@ -499,7 +503,7 @@ function SnippetCard({ snippet }: { snippet: CoverSnippet }) {
   return (
     <div className="border border-border rounded-lg overflow-hidden">
       <div className="flex items-center gap-2 px-3.5 py-2.5 cursor-pointer hover:bg-muted/40" onClick={() => setExpanded(e=>!e)}><div className="w-5 h-5 rounded flex items-center justify-center bg-primary/10 shrink-0"><FileText size={11} className="text-primary" /></div><p className="flex-1 text-sm font-semibold text-foreground text-left">{snippet.title}</p><ChevronDown size={14} className={`text-muted-foreground transition-transform ${expanded?"rotate-180":""}`} /></div>
-      {expanded && <div className="px-3.5 pb-3.5 border-t border-border"><p className="text-xs text-muted-foreground leading-relaxed mt-3">{snippet.body}</p><button onClick={() => { navigator.clipboard.writeText(snippet.body).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false),1800); }} className={`mt-3 flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all ${copied?"bg-emerald-50 text-emerald-700":"bg-muted text-muted-foreground"}`}>{copied?<Check size={12}/>:<Copy size={12}/>}{copied?"Copied!":"Copy snippet"}</button></div>}
+      {expanded && <div className="px-3.5 pb-3.5 border-t border-border"><p className="text-xs text-muted-foreground leading-relaxed mt-3">{snippet.body}</p><button onClick={() => { navigator.clipboard.writeText(snippet.body).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false),1800); }} className={`mt-3 flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all ${copied?"bg-emerald-400/10 text-emerald-300":"bg-muted text-muted-foreground"}`}>{copied?<Check size={12}/>:<Copy size={12}/>}{copied?"Copied!":"Copy snippet"}</button></div>}
     </div>
   );
 }
@@ -509,7 +513,7 @@ function FootprintField({ label, placeholder, value, onChange, icon: Icon, iconC
     <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor:`${iconColor}15` }}><Icon size={16} style={{ color:iconColor }} /></div>
       <div className="flex-1 min-w-0"><p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">{label}</p><input type="text" placeholder={placeholder} value={value} onChange={e=>onChange(e.target.value)} className="w-full text-sm text-foreground bg-transparent placeholder:text-muted-foreground/50 focus:outline-none" /></div>
-      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${connected?"bg-emerald-100":"bg-muted"}`}>{connected?<Check size={11} className="text-emerald-600" strokeWidth={2.5}/>:<div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}</div>
+      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${connected?"bg-emerald-400/15":"bg-muted"}`}>{connected?<Check size={11} className="text-emerald-400" strokeWidth={2.5}/>:<div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}</div>
     </div>
   );
 }
@@ -522,10 +526,10 @@ function ResumeCard({ resume, onDelete, onSetPrimary }: { resume: ResumeFile; on
         <FileText size={36} style={{ color:resume.accentColor }} strokeWidth={1.5} className="relative z-10" />
         {resume.isPrimary && <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full"><Star size={9} fill="currentColor" />Primary</div>}
         <div className={`absolute inset-0 bg-foreground/60 backdrop-blur-[2px] flex items-center justify-center gap-2 transition-opacity ${hovering?"opacity-100":"opacity-0"}`}>
-          <button className="w-8 h-8 rounded-lg bg-white/90 flex items-center justify-center"><Download size={14} /></button>
-          <button className="w-8 h-8 rounded-lg bg-white/90 flex items-center justify-center"><Pencil size={14} /></button>
-          {!resume.isPrimary && <button onClick={()=>onSetPrimary(resume.id)} className="w-8 h-8 rounded-lg bg-white/90 flex items-center justify-center"><Star size={14} /></button>}
-          <button onClick={()=>onDelete(resume.id)} className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600"><Trash2 size={14} /></button>
+          <button className="w-8 h-8 rounded-lg bg-slate-950/80 flex items-center justify-center"><Download size={14} /></button>
+          <button className="w-8 h-8 rounded-lg bg-slate-950/80 flex items-center justify-center"><Pencil size={14} /></button>
+          {!resume.isPrimary && <button onClick={()=>onSetPrimary(resume.id)} className="w-8 h-8 rounded-lg bg-slate-950/80 flex items-center justify-center"><Star size={14} /></button>}
+          <button onClick={()=>onDelete(resume.id)} className="w-8 h-8 rounded-lg bg-red-400/10 flex items-center justify-center text-red-400"><Trash2 size={14} /></button>
         </div>
       </div>
       <div className="p-4"><h4 className="font-semibold text-foreground text-sm">{resume.title}</h4><p className="text-xs text-muted-foreground mt-0.5 mb-3">{resume.subtitle}</p><div className="flex flex-wrap gap-1 mb-3">{resume.tags.map(tag=><span key={tag} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${getTagColor(tag)}`}>{tag}</span>)}</div><p style={{ fontFamily:"'JetBrains Mono',monospace" }} className="text-[11px] text-muted-foreground">Updated {daysSince(resume.updatedAt)}</p></div>
@@ -555,8 +559,8 @@ function ProfileView() {
         </div>
       </div>
       <div className="space-y-4">
-        <div className="bg-card border border-border rounded-xl p-5"><div className="flex items-center gap-3 mb-4 pb-4 border-b border-border"><div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><span className="text-primary font-bold text-lg">M</span></div><div><p className="font-semibold text-foreground">Moeen Al-Rashid</p><p className="text-xs text-muted-foreground">Senior Backend Engineer</p><div className="flex items-center gap-1 mt-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-[11px] text-emerald-600 font-medium">Open to offers</span></div></div></div><div className="grid grid-cols-2 gap-2 text-center">{[{label:"Applied",value:"10"},{label:"Interviews",value:"5"},{label:"Offers",value:"1"},{label:"Resumes",value:String(resumes.length)}].map(({label,value})=>(<div key={label} className="bg-muted/50 rounded-lg p-2.5"><p style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-lg font-bold text-foreground leading-none">{value}</p><p className="text-[11px] text-muted-foreground mt-0.5">{label}</p></div>))}</div></div>
-        <div className="bg-card border border-border rounded-xl p-5"><h2 className="font-semibold text-foreground mb-1">Digital Footprint</h2><p className="text-xs text-muted-foreground mb-4">Your online presence</p><FootprintField label="Portfolio" placeholder="yoursite.dev" value={links.portfolio} onChange={v=>setLinks(l=>({...l,portfolio:v}))} icon={Globe} iconColor="#0EA5E9" /><FootprintField label="GitHub" placeholder="github.com/username" value={links.github} onChange={v=>setLinks(l=>({...l,github:v}))} icon={Github} iconColor="#171717" /><FootprintField label="LinkedIn" placeholder="linkedin.com/in/handle" value={links.linkedin} onChange={v=>setLinks(l=>({...l,linkedin:v}))} icon={Linkedin} iconColor="#0A66C2" /><div className="flex items-center gap-3 py-3"><div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{backgroundColor:"#FFA11615"}}><LeetCodeIcon color="#FFA116" /></div><div className="flex-1 min-w-0"><p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">LeetCode</p><input type="text" placeholder="leetcode.com/username" value={links.leetcode} onChange={e=>setLinks(l=>({...l,leetcode:e.target.value}))} className="w-full text-sm bg-transparent focus:outline-none" /></div><div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${links.leetcode.trim()?"bg-emerald-100":"bg-muted"}`}>{links.leetcode.trim()?<Check size={11} className="text-emerald-600" strokeWidth={2.5}/>:<div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}</div></div><div className="mt-3 pt-3 border-t border-border"><div className="flex items-center justify-between"><p className="text-xs text-muted-foreground">Profile completeness</p><span style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-xs font-bold">{[links.portfolio,links.github,links.linkedin,links.leetcode].filter(Boolean).length*25}%</span></div><div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden"><div className="h-full bg-primary rounded-full transition-all" style={{width:`${[links.portfolio,links.github,links.linkedin,links.leetcode].filter(Boolean).length*25}%`}} /></div></div></div>
+        <div className="bg-card border border-border rounded-xl p-5"><div className="flex items-center gap-3 mb-4 pb-4 border-b border-border"><div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><span className="text-primary font-bold text-lg">M</span></div><div><p className="font-semibold text-foreground">Moeen Al-Rashid</p><p className="text-xs text-muted-foreground">Senior Backend Engineer</p><div className="flex items-center gap-1 mt-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-[11px] text-emerald-400 font-medium">Open to offers</span></div></div></div><div className="grid grid-cols-2 gap-2 text-center">{[{label:"Applied",value:"10"},{label:"Interviews",value:"5"},{label:"Offers",value:"1"},{label:"Resumes",value:String(resumes.length)}].map(({label,value})=>(<div key={label} className="bg-muted/50 rounded-lg p-2.5"><p style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-lg font-bold text-foreground leading-none">{value}</p><p className="text-[11px] text-muted-foreground mt-0.5">{label}</p></div>))}</div></div>
+        <div className="bg-card border border-border rounded-xl p-5"><h2 className="font-semibold text-foreground mb-1">Digital Footprint</h2><p className="text-xs text-muted-foreground mb-4">Your online presence</p><FootprintField label="Portfolio" placeholder="yoursite.dev" value={links.portfolio} onChange={v=>setLinks(l=>({...l,portfolio:v}))} icon={Globe} iconColor="#0EA5E9" /><FootprintField label="GitHub" placeholder="github.com/username" value={links.github} onChange={v=>setLinks(l=>({...l,github:v}))} icon={Github} iconColor="#171717" /><FootprintField label="LinkedIn" placeholder="linkedin.com/in/handle" value={links.linkedin} onChange={v=>setLinks(l=>({...l,linkedin:v}))} icon={Linkedin} iconColor="#0A66C2" /><div className="flex items-center gap-3 py-3"><div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{backgroundColor:"#FFA11615"}}><LeetCodeIcon color="#FFA116" /></div><div className="flex-1 min-w-0"><p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">LeetCode</p><input type="text" placeholder="leetcode.com/username" value={links.leetcode} onChange={e=>setLinks(l=>({...l,leetcode:e.target.value}))} className="w-full text-sm bg-transparent focus:outline-none" /></div><div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${links.leetcode.trim()?"bg-emerald-400/15":"bg-muted"}`}>{links.leetcode.trim()?<Check size={11} className="text-emerald-400" strokeWidth={2.5}/>:<div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />}</div></div><div className="mt-3 pt-3 border-t border-border"><div className="flex items-center justify-between"><p className="text-xs text-muted-foreground">Profile completeness</p><span style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-xs font-bold">{[links.portfolio,links.github,links.linkedin,links.leetcode].filter(Boolean).length*25}%</span></div><div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden"><div className="h-full bg-primary rounded-full transition-all" style={{width:`${[links.portfolio,links.github,links.linkedin,links.leetcode].filter(Boolean).length*25}%`}} /></div></div></div>
         <div className="bg-card border border-border rounded-xl p-5"><div className="flex items-center justify-between mb-4"><div><h2 className="font-semibold text-foreground">Cover Letter Snippets</h2><p className="text-xs text-muted-foreground mt-0.5">Reusable blocks</p></div><span style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{snippets.length}</span></div><div className="space-y-2">{snippets.map(s=><SnippetCard key={s.id} snippet={s} />)}<button className="w-full flex items-center justify-center gap-1.5 h-9 rounded-lg border border-dashed border-border text-xs font-semibold text-muted-foreground hover:border-primary/40"><Plus size={13} />Add snippet</button></div></div>
       </div>
     </div></div></div>
@@ -592,8 +596,8 @@ function CompanyCard({ company, selected, onClick }: { company: TargetCompany; s
   return (
     <button onClick={onClick} className={`w-full text-left rounded-xl border p-4 transition-all ${selected?"border-primary bg-accent/40 shadow-[0_0_0_2px_rgba(79,70,229,0.15)]":company.tier==="tier1"?"border-primary/25 bg-card hover:border-primary/50 hover:shadow-md":"border-border bg-card hover:border-primary/20 hover:shadow-sm"}`}>
       <div className="flex items-start justify-between gap-2 mb-3"><div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0" style={{ backgroundColor:company.color }}>{company.initial}</div><div><p className="font-semibold text-foreground text-sm">{company.name}</p><p className="text-[11px] text-muted-foreground mt-0.5">{company.industry}</p></div></div>{company.tier==="tier1"&&!selected&&<Star size={13} className="text-primary shrink-0 mt-0.5" fill="currentColor" />}</div>
-      <div className="flex items-center gap-1.5 mb-3"><StatusIcon size={10} style={{ color:company.hiringStatus==="Actively Hiring"?"#047857":company.hiringStatus==="Hiring Freeze"?"#B91C1C":company.hiringStatus==="Selective"?"#B45309":"#94A3B8" }} /><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${badgeStyle}`}>{company.hiringStatus}</span></div>
-      <div className="flex items-center gap-1.5 flex-wrap">{company.techIcons.slice(0,5).map(t=><TechBadge key={t} tech={t} size="sm" />)}{company.connections.length>0&&<div className="ml-auto flex items-center gap-0.5 text-[10px] text-emerald-600 font-semibold"><Users size={10} /><span>{company.connections.length}</span></div>}</div>
+      <div className="flex items-center gap-1.5 mb-3"><StatusIcon size={10} style={{ color:company.hiringStatus==="Actively Hiring"?"#34D399":company.hiringStatus==="Hiring Freeze"?"#FB7185":company.hiringStatus==="Selective"?"#FBBF24":"#94A3B8" }} /><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${badgeStyle}`}>{company.hiringStatus}</span></div>
+      <div className="flex items-center gap-1.5 flex-wrap">{company.techIcons.slice(0,5).map(t=><TechBadge key={t} tech={t} size="sm" />)}{company.connections.length>0&&<div className="ml-auto flex items-center gap-0.5 text-[10px] text-emerald-400 font-semibold"><Users size={10} /><span>{company.connections.length}</span></div>}</div>
     </button>
   );
 }
@@ -609,8 +613,8 @@ function IntelPanel({ company, apps, onUpdate }: { company: TargetCompany; apps:
         <div className="flex gap-2">{[{label:"Careers",url:company.careersUrl},{label:"LinkedIn",url:company.linkedinUrl},{label:"Glassdoor",url:company.glassdoorUrl}].map(({label,url})=>(<a key={label} href={url} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1 h-7 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-accent/40 transition-all"><ExternalLink size={11} />{label}</a>))}</div>
       </div>
       <div className="flex-1 overflow-y-auto bg-background">
-        <IntelPanelSection title="Tech Stack Radar" icon={Layers}><div className="space-y-3 pt-1"><TechGroupRow label="FE" techs={company.techStack.frontend} color="bg-amber-50 text-amber-700" /><TechGroupRow label="BE" techs={company.techStack.backend} color="bg-blue-50 text-blue-700" /><TechGroupRow label="OPS" techs={company.techStack.infra} color="bg-violet-50 text-violet-700" /></div></IntelPanelSection>
-        <IntelPanelSection title={`Inside Connections${company.connections.length?` · ${company.connections.length}`:""}`} icon={Users}><div className="space-y-2 mb-3">{company.connections.length===0&&!addingConn&&<p className="text-xs text-muted-foreground italic py-1">No connections yet</p>}{company.connections.map(conn=>(<div key={conn.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/50 group"><div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">{conn.name.charAt(0)}</div><div className="flex-1 min-w-0"><p className="text-sm font-semibold text-foreground">{conn.name}</p><p className="text-xs text-muted-foreground">{conn.role}</p>{conn.linkedin&&<a href={`https://${conn.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[11px] text-primary hover:underline"><Link2 size={10}/>{conn.linkedin}</a>}</div><button onClick={()=>onUpdate({...company,connections:company.connections.filter(c=>c.id!==conn.id)})} className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-500"><X size={12}/></button></div>))}</div>{addingConn?(<div className="space-y-2 p-3 bg-muted/40 rounded-lg border border-border">{[{key:"name",placeholder:"Full name"},{key:"role",placeholder:"e.g. Recruiter"},{key:"linkedin",placeholder:"linkedin.com/in/handle"}].map(({key,placeholder})=>(<input key={key} type="text" placeholder={placeholder} value={newConn[key as keyof typeof newConn]} onChange={e=>setNewConn(p=>({...p,[key]:e.target.value}))} className="w-full h-8 px-2.5 text-xs border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20" />))}<div className="flex gap-2 pt-1"><button onClick={()=>setAddingConn(false)} className="flex-1 h-7 text-xs font-semibold text-muted-foreground border border-border rounded-lg hover:bg-muted">Cancel</button><button onClick={handleAddConn} className="flex-1 h-7 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Add</button></div></div>):(<button onClick={()=>setAddingConn(true)} className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary"><UserPlus size={13}/>Add connection</button>)}</IntelPanelSection>
+        <IntelPanelSection title="Tech Stack Radar" icon={Layers}><div className="space-y-3 pt-1"><TechGroupRow label="FE" techs={company.techStack.frontend} color="bg-amber-400/10 text-amber-300" /><TechGroupRow label="BE" techs={company.techStack.backend} color="bg-blue-400/10 text-blue-300" /><TechGroupRow label="OPS" techs={company.techStack.infra} color="bg-violet-400/10 text-violet-300" /></div></IntelPanelSection>
+        <IntelPanelSection title={`Inside Connections${company.connections.length?` · ${company.connections.length}`:""}`} icon={Users}><div className="space-y-2 mb-3">{company.connections.length===0&&!addingConn&&<p className="text-xs text-muted-foreground italic py-1">No connections yet</p>}{company.connections.map(conn=>(<div key={conn.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/50 group"><div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">{conn.name.charAt(0)}</div><div className="flex-1 min-w-0"><p className="text-sm font-semibold text-foreground">{conn.name}</p><p className="text-xs text-muted-foreground">{conn.role}</p>{conn.linkedin&&<a href={`https://${conn.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[11px] text-primary hover:underline"><Link2 size={10}/>{conn.linkedin}</a>}</div><button onClick={()=>onUpdate({...company,connections:company.connections.filter(c=>c.id!==conn.id)})} className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-red-400"><X size={12}/></button></div>))}</div>{addingConn?(<div className="space-y-2 p-3 bg-muted/40 rounded-lg border border-border">{[{key:"name",placeholder:"Full name"},{key:"role",placeholder:"e.g. Recruiter"},{key:"linkedin",placeholder:"linkedin.com/in/handle"}].map(({key,placeholder})=>(<input key={key} type="text" placeholder={placeholder} value={newConn[key as keyof typeof newConn]} onChange={e=>setNewConn(p=>({...p,[key]:e.target.value}))} className="w-full h-8 px-2.5 text-xs border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20" />))}<div className="flex gap-2 pt-1"><button onClick={()=>setAddingConn(false)} className="flex-1 h-7 text-xs font-semibold text-muted-foreground border border-border rounded-lg hover:bg-muted">Cancel</button><button onClick={handleAddConn} className="flex-1 h-7 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Add</button></div></div>):(<button onClick={()=>setAddingConn(true)} className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary"><UserPlus size={13}/>Add connection</button>)}</IntelPanelSection>
         <IntelPanelSection title="My Notes" icon={Edit3}>{editingNotes?(<div className="space-y-2"><textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={7} className="w-full text-sm text-foreground bg-background border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed" autoFocus /><div className="flex gap-2"><button onClick={()=>{setNotes(company.notes);setEditingNotes(false);}} className="flex-1 h-7 text-xs font-semibold text-muted-foreground border border-border rounded-lg hover:bg-muted">Discard</button><button onClick={()=>{onUpdate({...company,notes});setEditingNotes(false);}} className="flex-1 h-7 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Save Notes</button></div></div>):(<div>{notes?<p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{notes}</p>:<p className="text-xs text-muted-foreground italic">No notes yet.</p>}<button onClick={()=>setEditingNotes(true)} className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary mt-3"><Pencil size={12}/>{notes?"Edit notes":"Add notes"}</button></div>)}</IntelPanelSection>
         <IntelPanelSection title="Application History" icon={Clock}>{apps.length===0?(<div className="py-2"><p className="text-xs text-muted-foreground italic">No applications to {company.name} yet.</p></div>):(<div className="space-y-0 relative"><div className="absolute left-[11px] top-2 bottom-2 w-px bg-border" />{apps.map(app=>(<div key={app.id} className="flex gap-3 relative pb-4 last:pb-0 pt-1"><div className={`w-[22px] h-[22px] rounded-full border-2 border-card flex items-center justify-center shrink-0 z-10 ${COLUMN_DOT[app.status]}`} /><div className="flex-1 min-w-0 pt-0.5"><div className="flex items-start justify-between gap-2"><div><p className="text-sm font-semibold text-foreground">{app.role}</p><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[app.status]} mt-1 inline-block`}>{app.status}</span></div><div className="text-right shrink-0"><p style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-[11px] text-muted-foreground">{daysSince(app.dateApplied)}</p><p style={{fontFamily:"'JetBrains Mono',monospace"}} className="text-[10px] text-muted-foreground/60">{app.resumeVersion}</p></div></div></div></div>))}</div>)}</IntelPanelSection>
       </div>
@@ -648,9 +652,9 @@ function MatchRing({ score }: { score: number }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const ringColor  = score >= 85 ? "#059669" : score >= 70 ? "#0D9488" : score >= 55 ? "#D97706" : "#94A3B8";
-  const textColor  = score >= 85 ? "#059669" : score >= 70 ? "#0D9488" : score >= 55 ? "#D97706" : "#94A3B8";
-  const trackColor = score >= 85 ? "#D1FAE5" : score >= 70 ? "#CCFBF1" : score >= 55 ? "#FEF3C7" : "#F1F5F9";
+  const ringColor  = score >= 85 ? "#34D399" : score >= 70 ? "#2DD4BF" : score >= 55 ? "#FBBF24" : "#94A3B8";
+  const textColor  = ringColor;
+  const trackColor = score >= 85 ? "#173B35" : score >= 70 ? "#143A3A" : score >= 55 ? "#3B321C" : "#202B3C";
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -673,7 +677,7 @@ function OpportunityCard({ opp, onAdd, onDismiss }: { opp: Opportunity; onAdd: (
   const scoreLabel = opp.matchScore >= 85 ? "Excellent" : opp.matchScore >= 70 ? "Good Match" : opp.matchScore >= 55 ? "Partial" : "Weak";
   const isAdded = opp.addedToPipeline || state === "added";
   return (
-    <div className={`bg-card border rounded-xl p-4 transition-all duration-200 ${isAdded ? "opacity-60 border-emerald-200 bg-emerald-50/20" : "border-border hover:shadow-md hover:border-primary/15"}`}>
+    <div className={`bg-card border rounded-xl p-4 transition-all duration-200 ${isAdded ? "opacity-60 border-emerald-400/20 bg-emerald-400/[0.06]" : "border-border hover:shadow-md hover:border-primary/15"}`}>
       <div className="flex gap-4">
         <div className="flex flex-col items-center gap-1 shrink-0">
           <MatchRing score={opp.matchScore} />
@@ -684,7 +688,7 @@ function OpportunityCard({ opp, onAdd, onDismiss }: { opp: Opportunity; onAdd: (
             <div className="w-5 h-5 rounded flex items-center justify-center text-white text-[9px] font-bold shrink-0" style={{ backgroundColor: opp.companyColor }}>{opp.initial}</div>
             <span className="text-sm font-semibold text-foreground">{opp.company}</span>
             <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${SOURCE_STYLE[opp.source] ?? "bg-muted text-muted-foreground"}`}>{opp.source}</span>
-            {opp.isRemote && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700">Remote</span>}
+            {opp.isRemote && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-400/10 text-teal-300">Remote</span>}
             <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="ml-auto text-[11px] text-muted-foreground shrink-0">{opp.postedAgo}</span>
           </div>
           <p className="font-semibold text-foreground text-sm leading-tight mb-1">{opp.role}</p>
@@ -693,13 +697,13 @@ function OpportunityCard({ opp, onAdd, onDismiss }: { opp: Opportunity; onAdd: (
             <span style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs font-semibold text-foreground">{opp.salary}</span>
           </div>
           <div className="flex flex-wrap gap-1">
-            {opp.matchedSkills.slice(0, 5).map(s => <span key={s} className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700"><Check size={8} strokeWidth={3}/>{s}</span>)}
-            {opp.missingSkills.map(s => <span key={s} className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700"><TrendingDown size={8}/>Missing: {s}</span>)}
+            {opp.matchedSkills.slice(0, 5).map(s => <span key={s} className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-400/10 text-emerald-300"><Check size={8} strokeWidth={3}/>{s}</span>)}
+            {opp.missingSkills.map(s => <span key={s} className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-400/10 text-amber-300"><TrendingDown size={8}/>Missing: {s}</span>)}
           </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0 justify-center">
           {isAdded ? (
-            <div className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+            <div className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-400/10 text-emerald-300 text-xs font-semibold border border-emerald-400/20">
               <Check size={13} strokeWidth={2.5}/>Added!
             </div>
           ) : (
@@ -725,7 +729,7 @@ function InsightsPanel() {
         <div className="flex items-center gap-2 mb-3">
           <Radio size={14} className="text-primary"/>
           <h3 className="text-sm font-semibold text-foreground">Live Feed Stats</h3>
-          <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-emerald-600"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>Live</span>
+          <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>Live</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {[{ label:"Scanned", value:totalScanned.toLocaleString() },{ label:"Matches", value:"23" },{ label:"High (>85%)", value:"4" }].map(({ label, value }) => (
@@ -864,7 +868,7 @@ function RadarView({ onAddApp }: { onAddApp: (app: Omit<Application, "id" | "ini
                 <span className="text-muted-foreground ml-1">opportunities</span>
               </p>
               {highMatchCount > 0 && (
-                <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-300 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">
                   <Star size={9} fill="currentColor"/>{highMatchCount} high match
                 </span>
               )}
@@ -1032,8 +1036,8 @@ function ContactRow({ contact, selected, onClick }: {
   const urgency = followUpUrgency(contact.nextActionDate);
   const { badge, dot } = OUTREACH_STATUS_STYLE[contact.status];
 
-  const urgencyDateClass = urgency === "overdue" ? "text-red-600 font-semibold" :
-    urgency === "today" ? "text-orange-600 font-semibold" : "text-muted-foreground";
+  const urgencyDateClass = urgency === "overdue" ? "text-red-400 font-semibold" :
+    urgency === "today" ? "text-orange-400 font-semibold" : "text-muted-foreground";
 
   return (
     <tr
@@ -1084,7 +1088,7 @@ function ContactRow({ contact, selected, onClick }: {
             {urgency === "overdue" ? "Overdue · " : urgency === "today" ? "Today · " : ""}{contact.nextActionDate}
           </span>
           {(urgency === "overdue" || urgency === "today") && (
-            <span className="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-orange-400 bg-orange-400/10 border border-orange-400/20 px-1.5 py-0.5 rounded-full">
               Follow up!
             </span>
           )}
@@ -1140,13 +1144,13 @@ function OutreachView() {
               <span className="text-muted-foreground ml-1">contacts</span>
             </p>
             {overdueCount > 0 && (
-              <span className="flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 text-[11px] font-bold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                 {overdueCount} overdue
               </span>
             )}
             {todayCount > 0 && (
-              <span className="text-[11px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-bold text-orange-400 bg-orange-400/10 border border-orange-400/20 px-2 py-0.5 rounded-full">
                 {todayCount} due today
               </span>
             )}
@@ -1222,7 +1226,7 @@ function QuestionCard({ q, onDelete }: { q: VaultQuestion; onDelete: (id: string
         <div className="flex items-start justify-between gap-3 mb-3">
           <p className="text-sm font-semibold text-foreground leading-snug flex-1">{q.question}</p>
           {q.frequency >= 2 && (
-            <span className="shrink-0 text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+            <span className="shrink-0 text-[10px] font-bold text-orange-300 bg-orange-400/10 border border-orange-400/20 px-1.5 py-0.5 rounded-full whitespace-nowrap">
               🔥 Asked {q.frequency}×
             </span>
           )}
@@ -1409,7 +1413,7 @@ function VaultView() {
 
 function ActivityHeatmap() {
   const getColor = (n: number) =>
-    n === 0 ? "#E2E8F0" : n <= 2 ? "#99F6E4" : n <= 5 ? "#2DD4BF" : "#0F766E";
+    n === 0 ? "#1B2636" : n <= 2 ? "#164E63" : n <= 5 ? "#22C7B8" : "#5EEAD4";
 
   // 52 week columns × 7 day rows
   const weeks = Array.from({ length: 52 }, (_, w) => HEATMAP_CELLS.slice(w * 7, w * 7 + 7));
@@ -1465,10 +1469,10 @@ function ActivityHeatmap() {
 
 function StreakSection() {
   const stats = [
-    { label: "Current Streak", value: "12", unit: "days", icon: Flame, color: "text-orange-500", bg: "bg-orange-50" },
-    { label: "Longest Streak", value: "18", unit: "days", icon: Trophy, color: "text-amber-500", bg: "bg-amber-50" },
+    { label: "Current Streak", value: "12", unit: "days", icon: Flame, color: "text-orange-500", bg: "bg-orange-400/10" },
+    { label: "Longest Streak", value: "18", unit: "days", icon: Trophy, color: "text-amber-500", bg: "bg-amber-400/10" },
     { label: "Total Actions",  value: "145", unit: "all time", icon: Zap,   color: "text-primary",  bg: "bg-accent" },
-    { label: "This Week",      value: "23",  unit: "actions",  icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "This Week",      value: "23",  unit: "actions",  icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-400/10" },
   ];
 
   return (
@@ -1476,7 +1480,7 @@ function StreakSection() {
       <div className="flex items-center gap-2 mb-4">
         <Flame size={16} className="text-orange-500" />
         <h3 className="font-semibold text-foreground">Activity Streak</h3>
-        <span className="ml-auto text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+        <span className="ml-auto text-[11px] font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">
           🔥 12 days and counting
         </span>
       </div>
@@ -1534,7 +1538,7 @@ function AddAppModal({ onClose, onAdd }: { onClose: () => void; onAdd: (app: Omi
         <div className="flex items-center justify-between px-6 py-4 border-b border-border"><div><h2 className="font-semibold text-foreground">Track New Application</h2><p className="text-xs text-muted-foreground mt-0.5">Add a job to your pipeline</p></div><button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted"><X size={15}/></button></div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Job Posting URL</label><div className="relative"><input type="url" placeholder="https://jobs.company.com/role/..." value={form.url} onChange={e=>setForm(f=>({...f,url:e.target.value}))} className={inputClass+" pr-9"}/><Sparkles size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40"/></div></div>
-          <div className="grid grid-cols-2 gap-3"><div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Company <span className="text-red-500">*</span></label><input required type="text" placeholder="e.g. Stripe" value={form.company} onChange={e=>setForm(f=>({...f,company:e.target.value}))} className={inputClass}/></div><div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Job Title <span className="text-red-500">*</span></label><input required type="text" placeholder="e.g. Backend Engineer" value={form.role} onChange={e=>setForm(f=>({...f,role:e.target.value}))} className={inputClass}/></div></div>
+          <div className="grid grid-cols-2 gap-3"><div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Company <span className="text-red-400">*</span></label><input required type="text" placeholder="e.g. Stripe" value={form.company} onChange={e=>setForm(f=>({...f,company:e.target.value}))} className={inputClass}/></div><div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Job Title <span className="text-red-400">*</span></label><input required type="text" placeholder="e.g. Backend Engineer" value={form.role} onChange={e=>setForm(f=>({...f,role:e.target.value}))} className={inputClass}/></div></div>
           <div className="grid grid-cols-2 gap-3"><div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Resume Version</label><select value={form.resumeVersion} onChange={e=>setForm(f=>({...f,resumeVersion:e.target.value}))} className={inputClass+" cursor-pointer appearance-none"}>{["v1","v2","v3","v4","v5"].map(v=><option key={v} value={v}>{v}</option>)}</select></div><div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Date Applied</label><input type="date" value={form.dateApplied} onChange={e=>setForm(f=>({...f,dateApplied:e.target.value}))} className={inputClass}/></div></div>
           <div><label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Initial Stage</label><div className="grid grid-cols-5 gap-1.5">{COLUMNS.map(({key})=>(<button key={key} type="button" onClick={()=>setForm(f=>({...f,status:key}))} className={`text-[11px] font-semibold py-1.5 px-1 rounded-lg border transition-all leading-tight text-center ${form.status===key?STATUS_BADGE[key]+" border-current":"border-border text-muted-foreground hover:bg-muted"}`}>{key}</button>))}</div></div>
           <div className="flex gap-3 pt-1"><button type="button" onClick={onClose} className="flex-1 h-9 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:bg-muted">Cancel</button><button type="submit" className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">Save & Track</button></div>
@@ -1547,7 +1551,7 @@ function AddAppModal({ onClose, onAdd }: { onClose: () => void; onAdd: (app: Omi
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [view, setView] = useState<View>("radar");
+  const [view, setView] = useState<View>("study");
   const [apps, setApps] = useState<Application[]>(INITIAL_APPS);
   const [showModal, setShowModal] = useState(false);
 
@@ -1557,7 +1561,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="flex h-screen bg-background overflow-hidden">
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="app-shell flex h-screen bg-background overflow-hidden">
       <Sidebar view={view} setView={setView} />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header view={view} onAdd={() => setShowModal(true)} />
@@ -1569,6 +1573,7 @@ export default function App() {
           {view === "radar"     && <RadarView onAddApp={handleAdd} />}
           {view === "outreach"  && <OutreachView />}
           {view === "vault"     && <VaultView />}
+          {view === "study"     && <StudyPage />}
           {view === "profile"   && <ProfileView />}
         </main>
       </div>

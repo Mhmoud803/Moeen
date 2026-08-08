@@ -1,30 +1,23 @@
-# Build stage
+# Build the latest frontend source into static production assets.
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm ci || npm install
+RUN npm ci
 
 # Copy application code
 COPY . .
 
-# Build the project
 RUN npm run build
 
-# Production stage
 FROM nginx:stable-alpine
 
-# Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy build output from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
