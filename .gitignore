@@ -73,6 +73,8 @@ coverage/
 jspm_packages/
 web_modules/
 
+# Local generated launcher scripts
+/bin/
 
 
 docs/
