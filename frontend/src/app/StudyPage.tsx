@@ -33,7 +33,7 @@ import {
 } from "recharts";
 
 type TimerMode = "FOCUS" | "SHORT_BREAK" | "LONG_BREAK";
-type RangePreset = "7" | "30" | "90" | "custom";
+type RangePreset = "7" | "30" | "90" | "all" | "custom";
 type ApiState = "loading" | "connected" | "offline";
 
 interface StudySession {
@@ -59,8 +59,10 @@ const DEFAULT_PREFERENCES: TimerPreferences = {
   sessionsUntilLongBreak: 4,
 };
 
-const OWNER_STORAGE_KEY = "moeen-study-owner";
 const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api").replace(/\/$/, "");
+// Moeen is currently a single-user application. A stable owner keeps persisted
+// PostgreSQL history visible even when browser storage or the frontend container changes.
+const STUDY_OWNER_KEY = ((import.meta.env.VITE_STUDY_OWNER_KEY as string | undefined) ?? "moeen-default-owner").trim();
 
 function localDateKey(date = new Date()) {
   const year = date.getFullYear();
@@ -89,14 +91,6 @@ function startOfWeek(value: string) {
   const day = date.getDay();
   date.setDate(date.getDate() - (day === 0 ? 6 : day - 1));
   return localDateKey(date);
-}
-
-function getOwnerKey() {
-  const existing = window.localStorage.getItem(OWNER_STORAGE_KEY);
-  if (existing) return existing;
-  const created = window.crypto?.randomUUID?.() ?? `browser-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  window.localStorage.setItem(OWNER_STORAGE_KEY, created);
-  return created;
 }
 
 function formatDuration(minutes: number) {
@@ -251,7 +245,6 @@ function ManualLogModal({ onClose, onSave, saving }: {
 }
 
 export function StudyPage() {
-  const ownerKey = useMemo(getOwnerKey, []);
   const today = localDateKey();
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [preferences, setPreferences] = useState<TimerPreferences>(DEFAULT_PREFERENCES);
@@ -275,10 +268,10 @@ export function StudyPage() {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      "X-Moeen-Owner": ownerKey,
+      "X-Moeen-Owner": STUDY_OWNER_KEY,
       ...init?.headers,
     },
-  }), [ownerKey]);
+  }), []);
 
   const loadData = useCallback(async () => {
     setApiState("loading");
@@ -427,9 +420,15 @@ export function StudyPage() {
       const to = customFrom <= customTo ? customTo : customFrom;
       return { from, to, days: daysBetween(from, to) };
     }
+    if (rangePreset === "all") {
+      const from = sessions.length > 0
+        ? sessions.reduce((earliest, session) => session.studiedOn < earliest ? session.studiedOn : earliest, sessions[0].studiedOn)
+        : today;
+      return { from, to: today, days: daysBetween(from, today) };
+    }
     const days = Number(rangePreset);
     return { from: addDays(today, -(days - 1)), to: today, days };
-  }, [customFrom, customTo, rangePreset, today]);
+  }, [customFrom, customTo, rangePreset, sessions, today]);
 
   const summary = useMemo(() => {
     const selected = sessions.filter((session) => session.studiedOn >= activeRange.from && session.studiedOn <= activeRange.to);
@@ -442,13 +441,14 @@ export function StudyPage() {
     const todayMinutes = sessions.filter((session) => session.studiedOn === today).reduce((sum, session) => sum + session.durationMinutes, 0);
     const weekStart = startOfWeek(today);
     const weekMinutes = sessions.filter((session) => session.studiedOn >= weekStart && session.studiedOn <= today).reduce((sum, session) => sum + session.durationMinutes, 0);
+    const allTimeMinutes = sessions.reduce((sum, session) => sum + session.durationMinutes, 0);
     const trend = previousMinutes === 0 ? (currentMinutes > 0 ? 100 : 0) : Math.round(((currentMinutes - previousMinutes) / previousMinutes) * 100);
     const chartData = Array.from({ length: activeRange.days }, (_, index) => {
       const date = addDays(activeRange.from, index);
       const minutes = selected.filter((session) => session.studiedOn === date).reduce((sum, session) => sum + session.durationMinutes, 0);
       return { date, hours: Number((minutes / 60).toFixed(2)) };
     });
-    return { selected, currentMinutes, todayMinutes, weekMinutes, trend, chartData };
+    return { selected, currentMinutes, todayMinutes, weekMinutes, allTimeMinutes, trend, chartData };
   }, [activeRange, sessions, today]);
 
   const totalTimerSeconds = minutesForMode(mode, preferences) * 60;
@@ -485,7 +485,7 @@ export function StudyPage() {
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           <StatCard label="Today" value={formatDuration(summary.todayMinutes)} detail={`${sessions.filter((session) => session.studiedOn === today).length} sessions completed`} icon={Clock3} tone="indigo" />
           <StatCard label="This week" value={formatDuration(summary.weekMinutes)} detail={`Since ${parseLocalDate(startOfWeek(today)).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`} icon={CalendarDays} tone="sky" />
-          <StatCard label="Selected period" value={formatDuration(summary.currentMinutes)} detail={`${activeRange.days} calendar days`} icon={Target} tone="amber" />
+          <StatCard label="All time" value={formatDuration(summary.allTimeMinutes)} detail={`${sessions.length} saved sessions`} icon={Target} tone="amber" />
           <StatCard label="Daily average" value={formatDuration(Math.round(summary.currentMinutes / activeRange.days))} detail={`${summary.selected.length} sessions in range`} icon={BarChart3} tone="emerald" />
         </div>
 
@@ -578,9 +578,9 @@ export function StudyPage() {
                 <p className="mt-1 text-[11px] text-muted-foreground">Compared with the previous {activeRange.days}-day period</p>
               </div>
               <div className="flex rounded-lg bg-muted p-1">
-                {(["7", "30", "90", "custom"] as RangePreset[]).map((preset) => (
+                {(["7", "30", "90", "all", "custom"] as RangePreset[]).map((preset) => (
                   <button key={preset} onClick={() => setRangePreset(preset)} className={`h-7 px-2.5 rounded-md text-[10px] font-semibold transition-all ${rangePreset === preset ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-                    {preset === "custom" ? "Custom" : `${preset}D`}
+                    {preset === "custom" ? "Custom" : preset === "all" ? "All" : `${preset}D`}
                   </button>
                 ))}
               </div>

@@ -10,6 +10,9 @@ RUN npm ci
 # Copy application code
 COPY . .
 
+ARG VITE_STUDY_OWNER_KEY=moeen-default-owner
+ENV VITE_STUDY_OWNER_KEY=${VITE_STUDY_OWNER_KEY}
+
 RUN npm run build
 
 FROM nginx:stable-alpine

@@ -54,6 +54,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_STUDY_OWNER_KEY: moeen-default-owner
     container_name: moeen-frontend
     restart: unless-stopped
     ports:
@@ -69,5 +71,7 @@ services:
       start_period: 5s
 
 volumes:
+  # A named volume has a lifecycle independent of the db container, so study
+  # sessions remain when the stack or PostgreSQL container is recreated.
   postgres_data:
     name: backend_postgres_data
