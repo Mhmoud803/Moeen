@@ -1,6 +1,13 @@
 package com.example.Moeen.jobtracking.domain.model.application;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+
 import com.example.Moeen.jobtracking.domain.model.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,11 +19,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 @Entity
 @Table(name = "job_applications")
@@ -38,15 +40,15 @@ public class JobApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "current_status", nullable = false, columnDefinition = "application_status")
-    private ApplicationStatus currentStatus;
+    private ApplicationStatus currentStatus = ApplicationStatus.APPLIED;
 
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(nullable = false, columnDefinition = "application_priority")
     private ApplicationPriority priority = ApplicationPriority.MEDIUM;
 
-    @Column(name = "applied_at")
-    private Instant appliedAt;
+    @Column(name = "applied_at", nullable = false)
+    private Instant appliedAt = Instant.now();
 
     @Column(name = "follow_up_at")
     private Instant followUpAt;

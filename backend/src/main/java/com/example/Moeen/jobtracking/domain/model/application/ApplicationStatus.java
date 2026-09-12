@@ -1,7 +1,6 @@
 package com.example.Moeen.jobtracking.domain.model.application;
 
 public enum ApplicationStatus {
-    PREPARING,
     APPLIED,
     UNDER_REVIEW,
     ASSESSMENT,
